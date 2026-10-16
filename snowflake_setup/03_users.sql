@@ -2,7 +2,7 @@ USE ROLE USERADMIN;
 
 CREATE USER IF NOT EXISTS dlt_user
     PASSWORD = 'chande_me_dlt'
-    DEFAULT_ROLE = dle_role 
+    DEFAULT_ROLE = dlt_role 
     DEFAULT_WAREHOUSE = flight_wh
     DEFAULT_NAMESPACE = flight_db.raw
     MUST_CHANGE_PASSWORD = FALSE 
