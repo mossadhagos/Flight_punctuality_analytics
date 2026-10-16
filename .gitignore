@@ -219,3 +219,5 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 /data_extract_load/.dlt/secrets.toml
+# Local collected flight data
+/data_extract_load/data/
