@@ -1,4 +1,4 @@
-"""Collect a fixed three-day flight snapshot for all course airports."""
+"""Collect today and the previous two UTC dates for all course airports."""
 
 import json
 import os
@@ -9,28 +9,32 @@ from pathlib import Path
 import requests
 from dotenv import load_dotenv
 
-from data_extract_load.api_client import get_flights
+from data_extract_load.api_client import get_flights, recent_service_dates
 
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = BASE_DIR.parent
-SNAPSHOT_PATH = BASE_DIR / "data" / "flights_2026-10-14_2026-10-16.json"
+DATA_DIR = BASE_DIR / "data"
 
 AIRPORTS = ("ARN", "BMA", "GOT", "MMX", "LLA", "UME", "OSD", "VBY", "RNB", "KRN")
-DATES = (date(2026, 10, 14), date(2026, 10, 15), date(2026, 10, 16))
 DIRECTIONS = ("arrivals", "departures")
 
 
-def read_snapshot() -> dict:
-    """Read an existing snapshot and check its dates and request coverage."""
-    snapshot = json.loads(SNAPSHOT_PATH.read_text(encoding="utf-8"))
+def snapshot_path_for(dates: tuple[date, ...]) -> Path:
+    """Build a filename from the dates calculated for this run."""
+    return DATA_DIR / f"flights_{dates[0].isoformat()}_{dates[-1].isoformat()}.json"
 
-    if snapshot["dates"] != [day.isoformat() for day in DATES]:
-        raise ValueError("Snapshot dates do not match the agreed dates.")
+
+def read_snapshot(snapshot_path: Path, dates: tuple[date, ...]) -> dict:
+    """Read a snapshot and check the expected dates and request coverage."""
+    snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
+
+    if snapshot["dates"] != [day.isoformat() for day in dates]:
+        raise ValueError("Snapshot dates do not match this collection window.")
 
     expected = {
         (airport, day.isoformat(), direction)
         for airport in AIRPORTS
-        for day in DATES
+        for day in dates
         for direction in DIRECTIONS
     }
     actual = {
@@ -47,7 +51,7 @@ def read_snapshot() -> dict:
     return snapshot
 
 
-def print_summary(snapshot: dict) -> None:
+def print_summary(snapshot: dict, snapshot_path: Path) -> None:
     """Show what was collected without displaying flight records or secrets."""
     print("\nDates:", ", ".join(snapshot["dates"]))
     print("Completed request combinations:", len(snapshot["requests"]))
@@ -61,14 +65,18 @@ def print_summary(snapshot: dict) -> None:
         print(f"{direction.capitalize()}: {count} records")
 
     print("Total flight records:", len(snapshot["flights"]))
-    print("Snapshot:", SNAPSHOT_PATH)
+    print("Snapshot:", snapshot_path)
 
 
 def collect_flights() -> None:
-    """Fetch once; use the existing snapshot on subsequent runs."""
-    if SNAPSHOT_PATH.exists():
+    """Calculate the current window; reuse only a snapshot for those dates."""
+    dates = recent_service_dates()
+    snapshot_path = snapshot_path_for(dates)
+    print("Collection window (UTC):", ", ".join(day.isoformat() for day in dates))
+
+    if snapshot_path.exists():
         print("Using saved snapshot. No API requests will be made.")
-        print_summary(read_snapshot())
+        print_summary(read_snapshot(snapshot_path, dates), snapshot_path)
         return
 
     load_dotenv(PROJECT_DIR / ".env")
@@ -79,11 +87,11 @@ def collect_flights() -> None:
 
     all_flights = []
     completed_requests = []
-    total_requests = len(AIRPORTS) * len(DATES) * len(DIRECTIONS)
+    total_requests = len(AIRPORTS) * len(dates) * len(DIRECTIONS)
 
     with requests.Session() as session:
         for airport in AIRPORTS:
-            for day in DATES:
+            for day in dates:
                 for direction in DIRECTIONS:
                     flights = get_flights(
                         api_key=api_key,
@@ -135,22 +143,22 @@ def collect_flights() -> None:
         raise SystemExit("Every request was empty. No snapshot was saved; investigate first.")
 
     snapshot = {
-        "dates": [day.isoformat() for day in DATES],
+        "dates": [day.isoformat() for day in dates],
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "requests": completed_requests,
         "flights": all_flights,
     }
 
-    SNAPSHOT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    temporary_path = SNAPSHOT_PATH.with_suffix(".tmp")
+    snapshot_path.parent.mkdir(parents=True, exist_ok=True)
+    temporary_path = snapshot_path.with_suffix(".tmp")
     temporary_path.write_text(
         json.dumps(snapshot, indent=2, ensure_ascii=False),
         encoding="utf-8",
     )
-    temporary_path.replace(SNAPSHOT_PATH)
+    temporary_path.replace(snapshot_path)
 
     print("Collection complete. Snapshot saved.")
-    print_summary(read_snapshot())
+    print_summary(read_snapshot(snapshot_path, dates), snapshot_path)
 
 
 if __name__ == "__main__":
