@@ -7,7 +7,7 @@ GRANT USAGE ON WAREHOUSE flight_wh TO ROLE reporter_role;
 
 GRANT USAGE ON DATABASE flight_db TO ROLE dlt_role;
 GRANT USAGE ON DATABASE flight_db TO ROLE dbt_role;
-GRANT USAGE ON DATABASE Flight_db TO ROLE reporter_role;
+GRANT USAGE ON DATABASE flight_db TO ROLE reporter_role;
 
 GRANT USAGE, CREATE TABLE ON SCHEMA flight_db.raw TO ROLE dlt_role;
 
