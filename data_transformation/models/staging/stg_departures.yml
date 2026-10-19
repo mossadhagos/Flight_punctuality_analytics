@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: stg_departures
+    description: >
+      Standardized Swedavia departure records.
+      Deleted records are retained and flagged.
+      Multiple source records can describe the same flight leg.
+    columns:
+      - name: flight_id
+        data_tests:
+          - not_null
+
+      - name: airport_iata
+        description: "Monitored Swedish airport."
+        data_tests:
+          - not_null
+
+      - name: scheduled_date
+        description: "Service date requested from the API."
+        data_tests:
+          - not_null
+
+      - name: scheduled_at_utc
+        description: "Scheduled departure timestamp in UTC."
+        data_tests:
+          - not_null
+
+      - name: actual_at_utc
+        description: "Actual departure timestamp in UTC, when available."
+
+      - name: is_deleted
+        description: "True when the source flight status is DEL."
