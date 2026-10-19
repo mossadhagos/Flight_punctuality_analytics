@@ -221,3 +221,4 @@ __marimo__/
 /data_extract_load/.dlt/secrets.toml
 # Local collected flight data
 /data_extract_load/data/
+/data_extract_load/.dlt/pipelines/
