@@ -79,3 +79,20 @@ models:
     description: Actual departure timestamp in UTC, when available.
   - name: is_deleted
     description: True when the source flight status is DEL.
+- name: dim_airport
+  description: One row per monitored Swedish airport.
+  columns:
+  - name: airport_key
+    description: Surrogate key generated from the airport IATA code.
+    data_tests:
+    - unique
+    - not_null
+
+  - name: iata_code
+    data_tests:
+    - unique
+    - not_null
+
+  - name: airport_name
+    data_tests:
+    - not_null
