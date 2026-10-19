@@ -1,0 +1,12 @@
+version: 2
+
+sources:
+  - name: raw
+    database: FLIGHT_DB
+    schema: RAW
+    description: "Swedavia flight data and Wikipedia references loaded by dlt."
+    tables:
+      - name: arrivals
+      - name: departures
+      - name: airlines
+      - name: airports

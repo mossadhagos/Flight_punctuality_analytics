@@ -222,3 +222,9 @@ __marimo__/
 # Local collected flight data
 /data_extract_load/data/
 /data_extract_load/.dlt/pipelines/
+
+# Local dbt configuration and generated files
+/data_transformation/.dbt/
+/data_transformation/target/
+/data_transformation/logs/
+/data_transformation/dbt_packages/
