@@ -2,7 +2,7 @@ from datetime import date
 
 import pytest
 
-from data_extract_load.api_client import get_flights, recent_service_dates
+from data_extract_load.dlt.api_client import get_flights, recent_service_dates
 
 
 class FakeResponse:

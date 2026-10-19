@@ -9,8 +9,8 @@ import pandas as pd
 import requests
 from lxml import html
 
-from data_extract_load.collect_airlines import USER_AGENT, clean_text
-from data_extract_load.collect_flights import AIRPORTS
+from data_extract_load.dlt.collect_airlines import USER_AGENT, clean_text
+from data_extract_load.dlt.collect_flights import AIRPORTS
 
 INTERNATIONAL_URL = (
     "https://en.wikipedia.org/wiki/"
@@ -19,7 +19,7 @@ INTERNATIONAL_URL = (
 SWEDEN_URL = "https://en.wikipedia.org/wiki/List_of_airports_in_Sweden"
 
 SNAPSHOT_PATH = (
-    Path(__file__).resolve().parent
+    Path(__file__).resolve().parents[1]
     / "data"
     / "wikipedia_airports.json"
 )
