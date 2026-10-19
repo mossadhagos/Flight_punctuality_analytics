@@ -9,9 +9,9 @@ from pathlib import Path
 import requests
 from dotenv import load_dotenv
 
-from data_extract_load.api_client import get_flights, recent_service_dates
+from data_extract_load.dlt.api_client import get_flights, recent_service_dates
 
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).resolve().parents[1]
 PROJECT_DIR = BASE_DIR.parent
 DATA_DIR = BASE_DIR / "data"
 

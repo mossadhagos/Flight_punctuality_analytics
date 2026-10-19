@@ -13,7 +13,7 @@ import requests
 SOURCE_URL = "https://en.wikipedia.org/wiki/List_of_airline_codes"
 
 SNAPSHOT_PATH = (
-    Path(__file__).resolve().parent
+    Path(__file__).resolve().parents[1]
     / "data"
     / "wikipedia_airlines.json"
 )

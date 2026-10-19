@@ -6,14 +6,14 @@ from pathlib import Path
 
 import dlt
 
-from data_extract_load.api_client import recent_service_dates
-from data_extract_load.collect_flights import (
+from data_extract_load.dlt.api_client import recent_service_dates
+from data_extract_load.dlt.collect_flights import (
     DIRECTIONS,
     read_snapshot,
     snapshot_path_for,
 )
 
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).resolve().parents[1]
 
 PRIMARY_KEY = [
     "flight_id",
@@ -100,7 +100,7 @@ def main() -> None:
         raise SystemExit(
             "No snapshot for the current window. Run: "
             "uv run --locked python -m "
-            "data_extract_load.collect_flights"
+            "data_extract_load.dlt.collect_flights"
         )
 
     snapshot = read_snapshot(path, dates)

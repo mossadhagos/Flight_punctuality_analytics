@@ -8,9 +8,9 @@ from pathlib import Path
 
 import dlt
 
-from data_extract_load.collect_airports import validate_airports
+from data_extract_load.dlt.collect_airports import validate_airports
 
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).resolve().parents[1]
 
 
 def prepare_resources() -> list:
