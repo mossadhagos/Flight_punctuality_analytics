@@ -13,5 +13,13 @@ clean-targets:
 - dbt_packages
 models:
   flight_punctuality:
-    staging:
-      +materialized: view
+    +materialized: table
+    src:
+      +materialized: ephemeral
+      +schema: STAGING
+    dim:
+      +schema: DIMENSIONAL
+    fct:
+      +schema: DIMENSIONAL
+    mart:
+      +schema: MARTS
