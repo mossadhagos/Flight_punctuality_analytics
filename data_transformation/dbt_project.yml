@@ -1,0 +1,17 @@
+name: flight_punctuality
+version: 1.0.0
+config-version: 2
+profile: dbt_snowflake
+model-paths:
+- models
+macro-paths:
+- macros
+test-paths:
+- tests
+clean-targets:
+- target
+- dbt_packages
+models:
+  flight_punctuality:
+    staging:
+      +materialized: view
