@@ -1,0 +1,76 @@
+Table dimensional.dim_airport {
+  airport_key varchar [pk]
+  iata_code varchar [unique]
+  icao_code varchar
+  airport_name varchar [not null]
+  city varchar
+  country varchar
+}
+
+Table dimensional.dim_airline {
+  airline_key varchar [pk]
+  iata_code varchar
+  icao_code varchar
+  airline_name varchar [not null]
+  country_region varchar
+}
+
+Table dimensional.dim_date {
+  date_key integer [pk]
+  full_date date [not null, unique]
+  year integer
+  month integer
+  month_name varchar
+  day_of_month integer
+  weekday_name varchar
+}
+
+Table dimensional.fct_arrivals {
+  arrival_key varchar [pk]
+
+  airport_key varchar [not null,
+    ref: > dimensional.dim_airport.airport_key]
+
+  airline_key varchar [not null,
+    ref: > dimensional.dim_airline.airline_key]
+
+  date_key integer [not null,
+    ref: > dimensional.dim_date.date_key]
+
+  flight_number varchar [not null]
+  flight_departure_date_utc date [not null]
+  origin_airport_iata varchar
+
+  scheduled_at_utc timestamp [not null]
+  actual_at_utc timestamp
+  delay_minutes decimal(10,2)
+  is_delayed boolean
+  flight_status varchar
+
+  Note: 'One arrival flight leg at the monitored Swedish airport.'
+}
+
+Table dimensional.fct_departures {
+  departure_key varchar [pk]
+
+  airport_key varchar [not null,
+    ref: > dimensional.dim_airport.airport_key]
+
+  airline_key varchar [not null,
+    ref: > dimensional.dim_airline.airline_key]
+
+  date_key integer [not null,
+    ref: > dimensional.dim_date.date_key]
+
+  flight_number varchar [not null]
+  flight_departure_date_utc date [not null]
+  destination_airport_iata varchar
+
+  scheduled_at_utc timestamp [not null]
+  actual_at_utc timestamp
+  delay_minutes decimal(10,2)
+  is_delayed boolean
+  flight_status varchar
+
+  Note: 'One departure flight leg from the monitored Swedish airport.'
+}
