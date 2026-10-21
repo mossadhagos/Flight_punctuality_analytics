@@ -161,10 +161,9 @@ models:
     description: Minutes between scheduled and actual time; negative means early.
   - name: is_delayed
     description: True when more than 15 minutes late; null when no actual time.
-  
-  - name: mart_flight_punctuality
-    description: One row per non-deleted flight leg with readable airport, airline and date attributes, for the dashboard.
-    columns:
+- name: mart_flight_punctuality
+  description: One row per non-deleted flight leg with readable airport, airline and date attributes, for the dashboard.
+  columns:
   - name: flight_key
     data_tests:
     - unique
