@@ -228,3 +228,6 @@ __marimo__/
 /data_transformation/target/
 /data_transformation/logs/
 /data_transformation/dbt_packages/
+
+# Local Snowflake scripts with passwords
+/snowflake_setup/*.local.sql
