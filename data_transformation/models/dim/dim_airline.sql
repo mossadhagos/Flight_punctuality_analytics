@@ -1,39 +1,33 @@
-with airlines as (
+with flight_airlines as (
 
-    select *
-    from {{ ref('src_airlines') }}
+    select airline_icao_code, airline_iata_code, airline_name
+    from {{ ref('src_arrivals') }}
+
+    union
+
+    select airline_icao_code, airline_iata_code, airline_name
+    from {{ ref('src_departures') }}
 
 ),
 
-deduplicated as (
+wikipedia_airlines as (
 
     select
-        reference_id,
-        iata_code,
         icao_code,
-        airline_name,
-        callsign,
-        country_region,
-        comments,
-        source_url,
-        extracted_at_utc
-    from airlines
-    qualify row_number() over (
-        partition by reference_id
-        order by extracted_at_utc desc
-    ) = 1
+        any_value(country_region) as country_region
+    from {{ ref('src_airlines') }}
+    where icao_code is not null
+    group by icao_code
+    having count(*) = 1
 
 )
 
 select
-    reference_id as airline_id,
-    iata_code,
-    icao_code,
-    airline_name,
-    callsign,
-    country_region,
-    comments,
-    source_url,
-    extracted_at_utc
-from deduplicated
-where reference_id is not null
+    {{ dbt_utils.generate_surrogate_key(['f.airline_icao_code']) }} as airline_key,
+    f.airline_iata_code as iata_code,
+    f.airline_icao_code as icao_code,
+    f.airline_name,
+    w.country_region
+from flight_airlines as f
+left join wikipedia_airlines as w
+    on w.icao_code = f.airline_icao_code
