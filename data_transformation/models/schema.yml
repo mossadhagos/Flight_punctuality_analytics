@@ -87,12 +87,77 @@ models:
     data_tests:
     - unique
     - not_null
-
   - name: iata_code
     data_tests:
     - unique
     - not_null
-
   - name: airport_name
     data_tests:
     - not_null
+- name: dim_airline
+  description: One row per airline operating flights at the monitored airports.
+  columns:
+  - name: airline_key
+    description: Surrogate key generated from the airline ICAO code.
+    data_tests:
+    - unique
+    - not_null
+  - name: icao_code
+    data_tests:
+    - unique
+    - not_null
+  - name: airline_name
+    data_tests:
+    - not_null
+- name: dim_date
+  description: One row per calendar day from 2026 through 2027.
+  columns:
+  - name: date_key
+    description: Date as an integer in YYYYMMDD format.
+    data_tests:
+    - unique
+    - not_null
+  - name: full_date
+    data_tests:
+    - unique
+    - not_null
+- name: fct_arrivals
+  description: One row per arrival flight leg at a monitored Swedish airport.
+  columns:
+  - name: arrival_key
+    data_tests:
+    - unique
+    - not_null
+  - name: airport_key
+    data_tests:
+    - not_null
+  - name: airline_key
+    data_tests:
+    - not_null
+  - name: date_key
+    data_tests:
+    - not_null
+  - name: delay_minutes
+    description: Minutes between scheduled and actual time; negative means early.
+  - name: is_delayed
+    description: True when more than 15 minutes late; null when no actual time.
+- name: fct_departures
+  description: One row per departure flight leg from a monitored Swedish airport.
+  columns:
+  - name: departure_key
+    data_tests:
+    - unique
+    - not_null
+  - name: airport_key
+    data_tests:
+    - not_null
+  - name: airline_key
+    data_tests:
+    - not_null
+  - name: date_key
+    data_tests:
+    - not_null
+  - name: delay_minutes
+    description: Minutes between scheduled and actual time; negative means early.
+  - name: is_delayed
+    description: True when more than 15 minutes late; null when no actual time.
