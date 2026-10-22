@@ -1,0 +1,13 @@
+version: 2
+
+exposures:
+  - name: flight_punctuality_dashboard
+    label: Flight Punctuality Dashboard
+    type: dashboard
+    maturity: medium
+    url: http://localhost:8501
+    description: Streamlit dashboard showing delayed arrivals and departures by airport, airline and date.
+    depends_on:
+      - ref('mart_flight_punctuality')
+    owner:
+      name: Flight punctuality team
