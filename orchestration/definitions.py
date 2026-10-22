@@ -1,3 +1,4 @@
+import os 
 import subprocess
 import sys
 from pathlib import Path
@@ -8,8 +9,10 @@ from dagster_dbt import DbtCliResource, DbtProject, dbt_assets
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 DBT_DIR = PROJECT_DIR / "data_transformation"
 
-dbt_project = DbtProject(project_dir=DBT_DIR, profiles_dir=DBT_DIR / ".dbt")
-dbt_project.prepare_if_dev()
+dbt_project = DbtProject(
+    project_dir=DBT_DIR,
+    profiles_dir=os.getenv("DBT_PROFILES_DIR", str(DBT_DIR / ".dbt")),
+)
 
 
 def run_module(module: str) -> None:
