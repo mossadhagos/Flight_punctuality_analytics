@@ -231,3 +231,6 @@ __marimo__/
 
 # Local Snowflake scripts with passwords
 /snowflake_setup/*.local.sql
+
+# Dagster local temporary files
+.tmp_dagster_home_*/
