@@ -115,13 +115,16 @@ def main() -> None:
         )
         return
 
+        
     secrets_path = BASE_DIR / ".dlt" / "secrets.toml"
+    credentials = None
 
-    with secrets_path.open("rb") as file:
-        credentials = tomllib.load(file)[
-            "destination"
-        ]["snowflake"]["credentials"]
-
+    if secrets_path.exists():
+        with secrets_path.open("rb") as file:
+            credentials = tomllib.load(file)[
+                "destination"
+            ]["snowflake"]["credentials"]
+            
     pipeline = dlt.pipeline(
         pipeline_name="swedavia_flights",
         pipelines_dir=str(BASE_DIR / ".dlt" / "pipelines"),
