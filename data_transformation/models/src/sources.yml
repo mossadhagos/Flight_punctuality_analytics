@@ -7,6 +7,10 @@ sources:
     description: "Swedavia flight data and Wikipedia references loaded by dlt."
     tables:
       - name: arrivals
+        description: "Arrivals at the ten monitored Swedish airports from the Swedavia FlightInfo API, last three days."
       - name: departures
+        description: "Departures from the ten monitored Swedish airports from the Swedavia FlightInfo API, last three days."
       - name: airlines
+        description: "Airline codes and names scraped from Wikipedia's List of airline codes."
       - name: airports
+        description: "Names, cities and ICAO codes for the ten monitored airports from Wikipedia."

@@ -1,0 +1,18 @@
+services:
+  dwh_pipeline:
+    build:
+      context: .
+      dockerfile: docker_setup/dockerfile.dwh
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: docker_setup/dockerfile.dashboard
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env

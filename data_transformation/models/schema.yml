@@ -13,10 +13,7 @@ models:
     data_tests:
     - not_null
 - name: src_airlines
-  description: 'Standardized Wikipedia airline reference records. Includes historical
-    operators and reused airline codes. Missing reference attributes remain null.
-
-    '
+  description: Standardized Wikipedia airline reference records. Includes historical operators and reused airline codes.
   columns:
   - name: reference_id
     description: Identifier generated from the original reference row.
@@ -30,12 +27,10 @@ models:
   - name: airline_name
     description: Airline name; missing values remain null.
 - name: src_arrivals
-  description: 'Standardized Swedavia arrival records. Deleted records are retained
-    and flagged. Multiple source records can describe the same flight leg.
-
-    '
+  description: Standardized Swedavia arrival records. Deleted records are kept and flagged.
   columns:
   - name: flight_id
+    description: Flight number, for example SK1045.
     data_tests:
     - not_null
   - name: airport_iata
@@ -55,12 +50,10 @@ models:
   - name: is_deleted
     description: True when the source flight status is DEL.
 - name: src_departures
-  description: 'Standardized Swedavia departure records. Deleted records are retained
-    and flagged. Multiple source records can describe the same flight leg.
-
-    '
+  description: Standardized Swedavia departure records. Deleted records are kept and flagged.
   columns:
   - name: flight_id
+    description: Flight number, for example SK1045.
     data_tests:
     - not_null
   - name: airport_iata
@@ -80,7 +73,7 @@ models:
   - name: is_deleted
     description: True when the source flight status is DEL.
 - name: dim_airport
-  description: One row per monitored Swedish airport.
+  description: The airport dimension. One row per monitored Swedish airport.
   columns:
   - name: airport_key
     description: Surrogate key generated from the airport IATA code.
@@ -88,29 +81,43 @@ models:
     - unique
     - not_null
   - name: iata_code
+    description: Three-letter airport code, for example ARN.
     data_tests:
     - unique
     - not_null
+  - name: icao_code
+    description: Four-letter airport code, for example ESSA.
   - name: airport_name
+    description: Airport name.
     data_tests:
     - not_null
+  - name: city
+    description: City the airport serves.
+  - name: country
+    description: Country of the airport.
 - name: dim_airline
-  description: One row per airline operating flights at the monitored airports.
+  description: The airline dimension. One row per airline operating flights at the monitored airports.
   columns:
   - name: airline_key
     description: Surrogate key generated from the airline ICAO code.
     data_tests:
     - unique
     - not_null
+  - name: iata_code
+    description: Two-letter airline code, for example SK.
   - name: icao_code
+    description: Three-letter airline code, for example SAS.
     data_tests:
     - unique
     - not_null
   - name: airline_name
+    description: Airline name from the flight data.
     data_tests:
     - not_null
+  - name: country_region
+    description: Airline country from Wikipedia, when exactly one Wikipedia row matches.
 - name: dim_date
-  description: One row per calendar day from 2026 through 2027.
+  description: The date dimension. One row per calendar day from 2026 through 2027.
   columns:
   - name: date_key
     description: Date as an integer in YYYYMMDD format.
@@ -118,68 +125,127 @@ models:
     - unique
     - not_null
   - name: full_date
+    description: The calendar date.
     data_tests:
     - unique
     - not_null
+  - name: weekday_number
+    description: Day of the week, Monday = 1 and Sunday = 7.
+  - name: weekday_name
+    description: Short weekday name, for example Mon.
 - name: fct_arrivals
-  description: One row per arrival flight leg at a monitored Swedish airport.
+  description: The arrival facts. One row per arrival flight leg at a monitored Swedish airport.
   columns:
   - name: arrival_key
+    description: Surrogate key from flight number, airport and scheduled time.
     data_tests:
     - unique
     - not_null
   - name: airport_key
+    description: Foreign key to dim_airport.
     data_tests:
     - not_null
+    - relationships:
+        arguments:
+          to: ref('dim_airport')
+          field: airport_key
   - name: airline_key
+    description: Foreign key to dim_airline.
     data_tests:
     - not_null
+    - relationships:
+        arguments:
+          to: ref('dim_airline')
+          field: airline_key
   - name: date_key
+    description: Foreign key to dim_date.
     data_tests:
     - not_null
+    - relationships:
+        arguments:
+          to: ref('dim_date')
+          field: date_key
+  - name: flight_number
+    description: Flight number, for example SK1045.
+  - name: origin_airport_iata
+    description: Airport the flight came from.
   - name: delay_minutes
     description: Minutes between scheduled and actual time; negative means early.
   - name: is_delayed
     description: True when more than 15 minutes late; null when no actual time.
+  - name: is_cancelled
+    description: True when the flight was cancelled.
 - name: fct_departures
-  description: One row per departure flight leg from a monitored Swedish airport.
+  description: The departure facts. One row per departure flight leg from a monitored Swedish airport.
   columns:
   - name: departure_key
+    description: Surrogate key from flight number, airport and scheduled time.
     data_tests:
     - unique
     - not_null
   - name: airport_key
+    description: Foreign key to dim_airport.
     data_tests:
     - not_null
+    - relationships:
+        arguments:
+          to: ref('dim_airport')
+          field: airport_key
   - name: airline_key
+    description: Foreign key to dim_airline.
     data_tests:
     - not_null
+    - relationships:
+        arguments:
+          to: ref('dim_airline')
+          field: airline_key
   - name: date_key
+    description: Foreign key to dim_date.
     data_tests:
     - not_null
+    - relationships:
+        arguments:
+          to: ref('dim_date')
+          field: date_key
+  - name: flight_number
+    description: Flight number, for example SK1045.
+  - name: destination_airport_iata
+    description: Airport the flight is going to.
   - name: delay_minutes
     description: Minutes between scheduled and actual time; negative means early.
   - name: is_delayed
     description: True when more than 15 minutes late; null when no actual time.
-  
-  - name: mart_flight_punctuality
-    description: One row per non-deleted flight leg with readable airport, airline and date attributes, for the dashboard.
-    columns:
+  - name: is_cancelled
+    description: True when the flight was cancelled.
+- name: mart_flight_punctuality
+  description: Arrivals and departures together, with airport, airline and date names, ready for the dashboard. Deleted flights are left out.
+  columns:
   - name: flight_key
+    description: Arrival or departure key from the fact tables.
     data_tests:
     - unique
     - not_null
   - name: direction
+    description: Arrival or Departure.
     data_tests:
     - accepted_values:
         arguments:
           values: ['Arrival', 'Departure']
   - name: airport_name
+    description: Monitored Swedish airport.
     data_tests:
     - not_null
   - name: airline_name
+    description: Airline operating the flight.
     data_tests:
     - not_null
+  - name: other_airport_iata
+    description: Origin for arrivals, destination for departures.
   - name: flight_date
+    description: Service date of the flight.
     data_tests:
     - not_null
+  - name: delay_minutes
+    description: Minutes late; negative means early.
+  - name: is_delayed
+    description: True when more than 15 minutes late; null when no actual time.

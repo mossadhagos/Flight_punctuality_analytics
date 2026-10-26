@@ -1,10 +1,25 @@
+import os
+
 import pandas as pd
 import streamlit as st
+
+SNOWFLAKE_SETTINGS = ["account", "user", "password", "role", "warehouse", "database", "schema"]
+
+
+def snowflake_connection():
+    settings = {
+        name: os.environ[f"SNOWFLAKE_{name.upper()}"]
+        for name in SNOWFLAKE_SETTINGS
+        if f"SNOWFLAKE_{name.upper()}" in os.environ
+    }
+    if settings:
+        return st.connection("flight_db", type="snowflake", **settings)
+    return st.connection("snowflake")
 
 
 @st.cache_data(ttl=600)
 def load_flights() -> pd.DataFrame:
-    conn = st.connection("snowflake")
+    conn = snowflake_connection()
     df = conn.query("select * from mart_flight_punctuality", ttl=600)
     df.columns = df.columns.str.lower()
     df["flight_date"] = pd.to_datetime(df["flight_date"]).dt.date
@@ -12,6 +27,7 @@ def load_flights() -> pd.DataFrame:
     df["is_delayed"] = df["is_delayed"].astype("boolean")
     df["is_cancelled"] = df["is_cancelled"].astype("boolean")
     return df
+
 
 def pick(label: str, df: pd.DataFrame, column: str) -> pd.DataFrame:
     options = sorted(df[column].dropna().unique())
@@ -34,6 +50,7 @@ def apply_filters(df: pd.DataFrame) -> pd.DataFrame:
 
 def finished_flights(df: pd.DataFrame) -> pd.DataFrame:
     return df[df["is_delayed"].notna()]
+
 
 def delay_summary(df: pd.DataFrame, by) -> pd.DataFrame:
     summary = finished_flights(df).groupby(by).agg(

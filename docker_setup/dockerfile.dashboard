@@ -1,0 +1,14 @@
+FROM python:3.13-slim
+
+ENV UV_NO_CACHE=1 \
+    PATH="/app/.venv/bin:$PATH"
+
+WORKDIR /app
+COPY pyproject.toml uv.lock ./
+
+RUN pip install --no-cache-dir uv
+RUN uv sync --locked --no-dev
+
+COPY dashboard/ ./dashboard/
+
+CMD ["streamlit", "run", "dashboard/app.py", "--server.port=8501", "--server.address=0.0.0.0", "--server.headless=true"]
