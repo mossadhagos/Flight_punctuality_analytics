@@ -1,0 +1,10 @@
+.venv
+.env
+.streamlit
+**/.dbt
+**/.dlt
+**/target
+**/dbt_packages
+**/__pycache__
+data_extract_load/data
+*.png
